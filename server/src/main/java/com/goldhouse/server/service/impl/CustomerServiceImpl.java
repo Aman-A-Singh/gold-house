@@ -1,7 +1,7 @@
 package com.goldhouse.server.service.impl;
 
-import com.goldhouse.server.dto.CustomerRequestDTO;
-import com.goldhouse.server.dto.CustomerResponseDTO;
+import com.goldhouse.server.dto.customerDTO.CustomerRequestDTO;
+import com.goldhouse.server.dto.customerDTO.CustomerResponseDTO;
 import com.goldhouse.server.model.Customer;
 import com.goldhouse.server.repository.CustomerRepository;
 import com.goldhouse.server.service.CustomerService;

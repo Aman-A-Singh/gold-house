@@ -1,7 +1,7 @@
 package com.goldhouse.server.controller;
 
-import com.goldhouse.server.dto.CustomerRequestDTO;
-import com.goldhouse.server.dto.CustomerResponseDTO;
+import com.goldhouse.server.dto.customerDTO.CustomerRequestDTO;
+import com.goldhouse.server.dto.customerDTO.CustomerResponseDTO;
 import com.goldhouse.server.service.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
