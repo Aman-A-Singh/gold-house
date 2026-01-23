@@ -1,4 +1,4 @@
-package com.goldhouse.server.dto;
+package com.goldhouse.server.dto.customerDTO;
 
 import lombok.Data;
 

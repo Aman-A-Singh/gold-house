@@ -1,7 +1,7 @@
 package com.goldhouse.server.service;
 
-import com.goldhouse.server.dto.CustomerRequestDTO;
-import com.goldhouse.server.dto.CustomerResponseDTO;
+import com.goldhouse.server.dto.customerDTO.CustomerRequestDTO;
+import com.goldhouse.server.dto.customerDTO.CustomerResponseDTO;
 
 import java.util.List;
 
