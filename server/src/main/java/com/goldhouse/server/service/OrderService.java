@@ -34,7 +34,7 @@ public interface OrderService {
 
     long getOrdersCountByCustomerIdAndStatus(long customerId, OrderStatus status);
 
-    OrderResponseDTO updateDeliverDetails(OrderRequestDTO orderRequestDto);
+    OrderResponseDTO updateOrderDetails(OrderRequestDTO orderRequestDto);
 
     List<OrderResponseDTO> getTodaysPendingOrder(LocalDate today);
 

@@ -4,9 +4,14 @@ import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
 import com.goldhouse.server.model.OrderStatus;
 import com.goldhouse.server.service.OrderService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -14,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
+@Validated
 public class OrderController {
 
     private final OrderService orderService;
@@ -23,7 +29,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponseDTO> addOrder(@RequestBody OrderRequestDTO dto) {
+    public ResponseEntity<OrderResponseDTO> addOrder(@Valid @RequestBody OrderRequestDTO dto) {
         return new ResponseEntity<>(orderService.addOrder(dto), HttpStatus.CREATED);
     }
 
@@ -35,8 +41,8 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<List<OrderResponseDTO>> getOrders(
             @RequestParam(required = false) String customerName,
-            @RequestParam(required = false) Long customerPhoneNumber,
-            @RequestParam(required = false) Long customerId,
+            @RequestParam(required = false) @Positive(message = "Phone number must be positive") Long customerPhoneNumber,
+            @RequestParam(required = false) @Positive(message = "Customer ID must be positive") Long customerId,
             @RequestParam(required = false) OrderStatus status
     ) {
         // Priority 1: Search by specific customer details
@@ -57,19 +63,19 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable String id) {
+    public ResponseEntity<Void> deleteOrder(@PathVariable @NotBlank(message = "Order ID cannot be empty") String id) {
         orderService.removeOrder(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable String id) {
+    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable @NotBlank(message = "Order ID cannot be empty") String id) {
         return new ResponseEntity<>(orderService.getOrder(id), HttpStatus.OK);
     }
 
     @GetMapping("/count")
     public long getOrdersCount(
-            @RequestParam(required = false) Long customerId,
+            @RequestParam(required = false) @Positive(message = "Customer ID must be positive") Long customerId,
             @RequestParam(required = false) OrderStatus status
     ) {
         if (customerId != null && status != null) {
@@ -105,14 +111,14 @@ public class OrderController {
     }
 
     @PutMapping("/deliver")
-    public ResponseEntity<OrderResponseDTO> updateDeliverDetails(@RequestBody OrderRequestDTO dto) {
-        return new ResponseEntity<> (orderService.updateDeliverDetails(dto),HttpStatus.OK);
+    public ResponseEntity<OrderResponseDTO> updateOrderDetails(@Valid @RequestBody OrderRequestDTO dto) {
+        return new ResponseEntity<> (orderService.updateOrderDetails(dto),HttpStatus.OK);
     }
 
     @GetMapping("/delivered/range")
     public ResponseEntity<List<OrderResponseDTO>> getOrdersDeliveredBetween(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+            @RequestParam @NotNull(message = "From date is required") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam @NotNull(message = "To date is required") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
     ) {
         return new ResponseEntity<>(orderService.ordersDeliveredBetweenDate(fromDate, toDate), HttpStatus.OK);
     }
