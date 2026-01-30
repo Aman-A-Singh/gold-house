@@ -1,6 +1,7 @@
 package com.goldhouse.server.dto.orderDTO;
 
 import com.goldhouse.server.model.OrderStatus;
+import com.goldhouse.server.annotation.deliveryDateValidator.ValidDeliveryDate;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ import java.time.LocalTime;
 
 
 @Data
+@ValidDeliveryDate
 public class OrderRequestDTO {
 
     @NotNull(message = "Customer ID is required")
