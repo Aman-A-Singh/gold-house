@@ -26,7 +26,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponseDTO addOrder(OrderRequestDTO orderRequestDTO) {
-        Order order = mapRequestDTO(orderRequestDTO);
+        Customer customer = customerRepository.findById(orderRequestDTO.getCustomer_id())
+                .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + orderRequestDTO.getCustomer_id()));
+        Order order = mapRequestDTO(orderRequestDTO, customer);
         Order orderResponse = orderRepository.save(order);
         return mapOrderToResponseDTO(orderResponse);
     }
@@ -68,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDTO getOrder(String orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + orderId));
+                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
         return mapOrderToResponseDTO(order);
     }
 
@@ -94,13 +96,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponseDTO updateDeliverDetails(OrderRequestDTO orderRequestDto) {
+    public OrderResponseDTO updateOrderDetails(OrderRequestDTO orderRequestDto) {
         Order order = orderRepository.getOrderByOrderDateAndOrderTime(
                 orderRequestDto.getOrderDate(),
                 orderRequestDto.getOrderTime()
         );
+
+        if (order == null) {
+            throw new RuntimeException("Order not found for the given date and time");
+        }
+
+        if(order.getOrderStatus().getValue() > orderRequestDto.getOrderStatus().getValue()){
+            throw new RuntimeException("Invalid Order Status update");
+        }
         order.setDeliverDate(orderRequestDto.getDeliverDate());
         order.setDeliverTime(orderRequestDto.getDeliverTime());
+        order.setOrderStatus(orderRequestDto.getOrderStatus());
         return mapOrderToResponseDTO(orderRepository.save(order));
     }
 
@@ -131,9 +142,8 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
-    private Order mapRequestDTO(OrderRequestDTO orderRequestDTO) {
+    private Order mapRequestDTO(OrderRequestDTO orderRequestDTO, Customer customer) {
         Order order = new Order();
-        Customer customer = customerRepository.getReferenceById(orderRequestDTO.getCustomer_id());
         order.setCustomer(customer);
         order.setWeight(orderRequestDTO.getWeight());
         order.setResult(orderRequestDTO.getResult());
