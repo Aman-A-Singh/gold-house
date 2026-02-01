@@ -2,6 +2,7 @@ package com.goldhouse.server.service.impl;
 
 import com.goldhouse.server.dto.customerDTO.CustomerRequestDTO;
 import com.goldhouse.server.dto.customerDTO.CustomerResponseDTO;
+import com.goldhouse.server.exception.customException.ResourceNotFoundException;
 import com.goldhouse.server.model.Customer;
 import com.goldhouse.server.repository.CustomerRepository;
 import com.goldhouse.server.service.CustomerService;
@@ -51,7 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = repository.findByName(name);
         // Add this check!
         if (customer == null) {
-            throw new RuntimeException("Customer not found with name: " + name);
+            throw new ResourceNotFoundException("Customer not found with name: " + name);
         }
         CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO();
         customerResponseDTO.setId(customer.getId());
@@ -64,7 +65,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponseDTO getCustomer(long customerId) {
         // 1. Fetch & Unwrap (Throw error if missing)
         Customer customer = repository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + customerId));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
         CustomerResponseDTO response = new CustomerResponseDTO();
         response.setId(customer.getId());
         response.setName(customer.getName());
