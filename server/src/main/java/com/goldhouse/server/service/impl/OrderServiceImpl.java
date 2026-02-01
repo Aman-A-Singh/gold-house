@@ -2,6 +2,7 @@ package com.goldhouse.server.service.impl;
 
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
+import com.goldhouse.server.exception.customException.ResourceNotFoundException;
 import com.goldhouse.server.model.Customer;
 import com.goldhouse.server.model.Order;
 import com.goldhouse.server.model.OrderStatus;
@@ -27,7 +28,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDTO addOrder(OrderRequestDTO orderRequestDTO) {
         Customer customer = customerRepository.findById(orderRequestDTO.getCustomer_id())
-                .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + orderRequestDTO.getCustomer_id()));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + orderRequestDTO.getCustomer_id()));
         Order order = mapRequestDTO(orderRequestDTO, customer);
         Order orderResponse = orderRepository.save(order);
         return mapOrderToResponseDTO(orderResponse);
@@ -70,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDTO getOrder(String orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
         return mapOrderToResponseDTO(order);
     }
 
@@ -103,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
         );
 
         if (order == null) {
-            throw new RuntimeException("Order not found for the given date and time");
+            throw new ResourceNotFoundException("Order not found for the given date and time");
         }
 
         if(order.getOrderStatus().getValue() > orderRequestDto.getOrderStatus().getValue()){
