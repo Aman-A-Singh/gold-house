@@ -1,5 +1,6 @@
 package com.goldhouse.server.controller;
 
+import com.goldhouse.server.api.ApiResponse;
 import com.goldhouse.server.dto.customerDTO.CustomerRequestDTO;
 import com.goldhouse.server.dto.customerDTO.CustomerResponseDTO;
 import com.goldhouse.server.service.CustomerService;
@@ -24,27 +25,38 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponseDTO> addCustomer(@Valid @RequestBody CustomerRequestDTO dto) {
-        return new ResponseEntity<>(customerService.addCustomer(dto), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<CustomerResponseDTO>> addCustomer(@Valid @RequestBody CustomerRequestDTO dto) {
+        CustomerResponseDTO customer = customerService.addCustomer(dto);
+        return ResponseEntity.ok(
+                ApiResponse.success(customer,"Customer added successfully")
+        );
     }
 
     @GetMapping("/check")
-    public ResponseEntity<Boolean> isCustomerAlreadyPresent(
+    public ResponseEntity<ApiResponse<Boolean>> isCustomerAlreadyPresent(
             @RequestParam @NotBlank(message = "Name cannot be empty") String name
     ) {
         boolean exists = customerService.isCustomerAlreadyPresent(name);
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(
+                ApiResponse.success(exists,"Customer already exists")
+        );
     }
 
     @GetMapping("/customer")
-    public ResponseEntity<CustomerResponseDTO> getCustomer(
+    public ResponseEntity<ApiResponse<CustomerResponseDTO>> getCustomer(
             @RequestParam @NotBlank(message = "Name cannot be empty") String name
     ) {
-        return new ResponseEntity<>(customerService.getCustomer(name), HttpStatus.OK);
+        CustomerResponseDTO customer = customerService.getCustomer(name);
+        return ResponseEntity.ok(
+                ApiResponse.success(customer,"Customer found")
+        );
     }
 
     @GetMapping
-    public List<CustomerResponseDTO> getAllCustomers() {
-       return customerService.getAllCustomers();
+    public ResponseEntity<ApiResponse<List<CustomerResponseDTO>>> getAllCustomers() {
+        List<CustomerResponseDTO> customers = customerService.getAllCustomers();
+        return ResponseEntity.ok(
+                ApiResponse.successWithCount(customers,"Customers found",customers.size())
+        );
     }
 }

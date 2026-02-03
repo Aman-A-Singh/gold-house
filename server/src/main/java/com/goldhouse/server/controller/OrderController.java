@@ -1,5 +1,6 @@
 package com.goldhouse.server.controller;
 
+import com.goldhouse.server.api.ApiResponse;
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
 import com.goldhouse.server.model.OrderStatus;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -29,37 +31,39 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponseDTO> addOrder(@Valid @RequestBody OrderRequestDTO dto) {
-        return new ResponseEntity<>(orderService.addOrder(dto), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<OrderResponseDTO>> addOrder(@Valid @RequestBody OrderRequestDTO dto) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.addOrder(dto)));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
-        return new ResponseEntity<>(orderService.getAllOrders(), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> getAllOrders() {
+        List<OrderResponseDTO> orderList = orderService.getAllOrders();
+        return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderResponseDTO>> getOrders(
+    public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> getOrders(
             @RequestParam(required = false) String customerName,
             @RequestParam(required = false) @Positive(message = "Phone number must be positive") Long customerPhoneNumber,
             @RequestParam(required = false) @Positive(message = "Customer ID must be positive") Long customerId,
             @RequestParam(required = false) OrderStatus status
     ) {
         // Priority 1: Search by specific customer details
+        List<OrderResponseDTO> orderList = Collections.emptyList();
         if (customerName != null) {
-            return new ResponseEntity<>(orderService.getOrdersByCustomerName(customerName), HttpStatus.OK);
+            orderList = orderService.getOrdersByCustomerName(customerName);
         }
         if (customerPhoneNumber != null) {
-            return new ResponseEntity<>(orderService.getOrdersByCustomerPhoneNumber(customerPhoneNumber), HttpStatus.OK);
+            orderList = orderService.getOrdersByCustomerPhoneNumber(customerPhoneNumber);
         }
 
         // Priority 2: Filter by ID and/or Status
         if (customerId != null || status != null) {
-            return new ResponseEntity<>(fetchOrders(customerId, status), HttpStatus.OK);
+            orderList = fetchOrders(customerId, status);
         }
 
         // Priority 3: Return all
-        return new ResponseEntity<>(orderService.getAllOrders(), HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
     }
 
     @DeleteMapping("/{id}")
@@ -69,8 +73,8 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable @NotBlank(message = "Order ID cannot be empty") String id) {
-        return new ResponseEntity<>(orderService.getOrder(id), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<OrderResponseDTO>> getOrderById(@PathVariable @NotBlank(message = "Order ID cannot be empty") String id) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.getOrder(id)));
     }
 
     @GetMapping("/count")
@@ -91,13 +95,15 @@ public class OrderController {
 
 
     @GetMapping("/today")
-    public ResponseEntity<List<OrderResponseDTO>> getTodayOrders(){
-        return new ResponseEntity<>(orderService.getOrdersByOrderDate(LocalDate.now()), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> getTodayOrders() {
+        List<OrderResponseDTO> orderList = orderService.getOrdersByOrderDate(LocalDate.now());
+        return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
     }
 
     @GetMapping("/today/pending")
-    public ResponseEntity<List<OrderResponseDTO>> getTodayPendingOrders() {
-        return new ResponseEntity<>(orderService.getTodaysPendingOrder(LocalDate.now()), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> getTodayPendingOrders() {
+        List<OrderResponseDTO> orderList = orderService.getTodaysPendingOrder(LocalDate.now());
+        return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
     }
 
     private List<OrderResponseDTO> fetchOrders(Long customerId, OrderStatus status) {
@@ -111,15 +117,16 @@ public class OrderController {
     }
 
     @PutMapping("/deliver")
-    public ResponseEntity<OrderResponseDTO> updateOrderDetails(@Valid @RequestBody OrderRequestDTO dto) {
-        return new ResponseEntity<> (orderService.updateOrderDetails(dto),HttpStatus.OK);
+    public ResponseEntity<ApiResponse<OrderResponseDTO>> updateOrderDetails(@Valid @RequestBody OrderRequestDTO dto) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.updateOrderDetails(dto)));
     }
 
     @GetMapping("/delivered/range")
-    public ResponseEntity<List<OrderResponseDTO>> getOrdersDeliveredBetween(
+    public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> getOrdersDeliveredBetween(
             @RequestParam @NotNull(message = "From date is required") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam @NotNull(message = "To date is required") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
     ) {
-        return new ResponseEntity<>(orderService.ordersDeliveredBetweenDate(fromDate, toDate), HttpStatus.OK);
+        List<OrderResponseDTO> orderList = orderService.ordersDeliveredBetweenDate(fromDate, toDate);
+        return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
     }
 }
