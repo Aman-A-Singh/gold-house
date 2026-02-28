@@ -17,7 +17,7 @@ public class ApiResponse<T> {
     private boolean success;
     private String message;
     private LocalDateTime timestamp;
-    private long totalCount;
+    private Long totalCount = null;
     private String path;
     private T data;
 
