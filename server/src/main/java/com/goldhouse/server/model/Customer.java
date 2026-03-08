@@ -13,5 +13,5 @@ public class Customer {
     @Column(nullable = false)
     private String name;
     @Column(nullable = false)
-    private long phoneNumber;
+    private Long phoneNumber;
 }
