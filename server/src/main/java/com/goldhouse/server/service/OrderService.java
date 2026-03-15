@@ -3,6 +3,8 @@ package com.goldhouse.server.service;
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
 import com.goldhouse.server.model.OrderStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,7 +13,7 @@ public interface OrderService {
 
     OrderResponseDTO addOrder(OrderRequestDTO orderRequestDTO);
 
-    List<OrderResponseDTO> getAllOrders();
+    Page<OrderResponseDTO> getAllOrders(Pageable pageable);
 
     void removeOrder(String orderId);
 

@@ -10,6 +10,8 @@ import com.goldhouse.server.model.OrderStatus;
 import com.goldhouse.server.repository.CustomerRepository;
 import com.goldhouse.server.repository.OrderRepository;
 import com.goldhouse.server.service.OrderService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,9 +40,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponseDTO> getAllOrders() {
-        List<Order> orders = orderRepository.findAll();
-        return orders.stream().map(orderMapper::toResponseDTO).toList();
+    public Page<OrderResponseDTO> getAllOrders(Pageable pageable) {
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+        return orderPage.map(orderMapper::toResponseDTO);
     }
 
     @Override

@@ -9,8 +9,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,9 +38,13 @@ public class OrderController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> getAllOrders() {
-        List<OrderResponseDTO> orderList = orderService.getAllOrders();
-        return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
+    public ResponseEntity<ApiResponse<ApiResponse.PagedResponse<OrderResponseDTO>>> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OrderResponseDTO> orderPage = orderService.getAllOrders(pageable);
+        return ResponseEntity.ok(ApiResponse.successPaging(orderPage));
     }
 
     @GetMapping
