@@ -1,14 +1,19 @@
 package com.goldhouse.server.service.impl;
 
+import com.goldhouse.server.dto.homeDTO.HomeMetrics;
+import com.goldhouse.server.dto.homeDTO.HomeResponseDTO;
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
+import com.goldhouse.server.dto.user.UserDTO;
 import com.goldhouse.server.exception.customException.ResourceNotFoundException;
 import com.goldhouse.server.mapper.OrderMapper;
 import com.goldhouse.server.model.Customer;
 import com.goldhouse.server.model.Order;
 import com.goldhouse.server.model.OrderStatus;
+import com.goldhouse.server.model.User;
 import com.goldhouse.server.repository.CustomerRepository;
 import com.goldhouse.server.repository.OrderRepository;
+import com.goldhouse.server.repository.UserRepository;
 import com.goldhouse.server.service.OrderService;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +25,13 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
     private final OrderMapper orderMapper;
 
-    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository, OrderMapper orderMapper) {
+    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository, OrderMapper orderMapper, UserRepository userRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
+        this.userRepository = userRepository;
         this.orderMapper = orderMapper;
     }
 
@@ -144,5 +151,38 @@ public class OrderServiceImpl implements OrderService {
                 .stream()
                 .map(orderMapper::toResponseDTO)
                 .toList();
+    }
+
+    @Override
+    public HomeResponseDTO getHomeData(long userId) {
+        long totalOrders = orderRepository.count();
+        long pendingOrders = orderRepository.countByOrderStatus(OrderStatus.PENDING);
+        long deliveredOrders = orderRepository.countByOrderStatus(OrderStatus.DELIVERED);
+        long canceledOrders = orderRepository.countByOrderStatus(OrderStatus.CANCELED);
+
+        List<Order> orders = orderRepository.findAll();
+        List<OrderResponseDTO> recentOrders = orders.stream().map(orderMapper::toResponseDTO).toList();
+
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found after authentication"));
+
+        UserDTO userDTO = UserDTO.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build();
+
+        HomeMetrics metrics = HomeMetrics.builder()
+                .totalOrders(totalOrders)
+                .pendingOrders(pendingOrders)
+                .deliveredOrders(deliveredOrders)
+                .canceledOrders(canceledOrders)
+                .build();
+
+        return HomeResponseDTO.builder()
+                .user(userDTO)
+                .metrics(metrics)
+                .recentOrders(recentOrders)
+                .build();
     }
 }
