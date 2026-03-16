@@ -1,5 +1,6 @@
 package com.goldhouse.server.service;
 
+import com.goldhouse.server.dto.homeDTO.HomeResponseDTO;
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
 import com.goldhouse.server.model.OrderStatus;
@@ -43,4 +44,6 @@ public interface OrderService {
     List<OrderResponseDTO> getOrdersByCustomerName(String customerName);
 
     List<OrderResponseDTO> getOrdersByCustomerPhoneNumber(long customerPhoneNumber);
+
+    HomeResponseDTO getHomeData(long userId);
 }

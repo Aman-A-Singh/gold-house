@@ -1,6 +1,7 @@
 package com.goldhouse.server.controller;
 
 import com.goldhouse.server.api.ApiResponse;
+import com.goldhouse.server.dto.homeDTO.HomeResponseDTO;
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
 import com.goldhouse.server.model.OrderStatus;
@@ -128,5 +129,10 @@ public class OrderController {
     ) {
         List<OrderResponseDTO> orderList = orderService.ordersDeliveredBetweenDate(fromDate, toDate);
         return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
+    }
+
+    @GetMapping("/home")
+    public ResponseEntity<ApiResponse<HomeResponseDTO>> getHomeData(@RequestParam long userId) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.getHomeData(userId)));
     }
 }
