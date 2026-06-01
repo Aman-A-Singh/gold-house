@@ -6,6 +6,7 @@ import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
 import com.goldhouse.server.dto.user.UserDTO;
 import com.goldhouse.server.exception.customException.ResourceNotFoundException;
+import com.goldhouse.server.mapper.CustomerMapper;
 import com.goldhouse.server.mapper.OrderMapper;
 import com.goldhouse.server.model.Customer;
 import com.goldhouse.server.model.Order;
@@ -29,18 +30,27 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
+    private final CustomerMapper customerMapper;
 
-    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository, OrderMapper orderMapper, UserRepository userRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository, OrderMapper orderMapper, UserRepository userRepository, CustomerMapper customerMapper) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.userRepository = userRepository;
         this.orderMapper = orderMapper;
+        this.customerMapper = customerMapper;
     }
 
     @Override
     public OrderResponseDTO addOrder(OrderRequestDTO orderRequestDTO) {
-        Customer customer = customerRepository.findById(orderRequestDTO.getCustomer_id())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + orderRequestDTO.getCustomer_id()));
+        Customer customer = null;
+        if (orderRequestDTO.getCustomer().getId() != null) {
+            customer = customerRepository.findById(orderRequestDTO.getCustomer().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + orderRequestDTO.getCustomer().getId()));
+        } else {
+            Customer customerEntity = customerMapper.toEntity(orderRequestDTO.getCustomer());
+            customer = customerRepository.save(customerEntity);
+        }
+
         Order order = orderMapper.toEntity(orderRequestDTO, customer);
         Order savedOrder = orderRepository.save(order);
         return orderMapper.toResponseDTO(savedOrder);
