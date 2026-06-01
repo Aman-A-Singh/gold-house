@@ -25,15 +25,18 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponseDTO addCustomer(CustomerRequestDTO dto) {
-
+        if(isCustomerAlreadyPresent(dto.getName(),dto.getPhoneNumber())){
+            Customer savedCustomer =  repository.findByNameAndPhoneNumber(dto.getName(),dto.getPhoneNumber());
+            return customerMapper.toResponseDTO(savedCustomer);
+        }
         Customer customer = customerMapper.toEntity(dto);
         Customer savedCustomer = repository.save(customer);
         return customerMapper.toResponseDTO(savedCustomer);
     }
 
     @Override
-    public boolean isCustomerAlreadyPresent(String name) {
-        return repository.existsByName(name);
+    public boolean isCustomerAlreadyPresent(String name, Long phoneNumber) {
+        return repository.existsByNameAndPhoneNumber(name,phoneNumber);
     }
 
     @Override

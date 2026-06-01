@@ -8,7 +8,7 @@ import java.util.List;
 public interface CustomerService {
     CustomerResponseDTO addCustomer(CustomerRequestDTO dto);
 
-    boolean isCustomerAlreadyPresent(String name);
+    boolean isCustomerAlreadyPresent(String name, Long phoneNumber);
 
     CustomerResponseDTO getCustomer(String name);
 

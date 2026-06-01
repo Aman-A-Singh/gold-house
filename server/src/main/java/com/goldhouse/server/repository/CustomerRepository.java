@@ -10,5 +10,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     // You can define custom queries here if needed
     boolean existsByName(String name);
 
+    boolean existsByNameAndPhoneNumber(String name, Long phoneNumber);
+
     Customer findByName(String name);
+
+    Customer findByNameAndPhoneNumber(String  name, Long phoneNumber);
 }

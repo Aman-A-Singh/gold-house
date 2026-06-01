@@ -53,3 +53,4 @@ src/main/resources/application.properties
 .DS_Store
 Thumbs.db
 Desktop.ini
+/logs

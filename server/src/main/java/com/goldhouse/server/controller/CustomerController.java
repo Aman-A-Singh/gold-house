@@ -32,16 +32,6 @@ public class CustomerController {
         );
     }
 
-    @GetMapping("/check")
-    public ResponseEntity<ApiResponse<Boolean>> isCustomerAlreadyPresent(
-            @RequestParam @NotBlank(message = "Name cannot be empty") String name
-    ) {
-        boolean exists = customerService.isCustomerAlreadyPresent(name);
-        return ResponseEntity.ok(
-                ApiResponse.success(exists,"Customer already exists")
-        );
-    }
-
     @GetMapping("/customer")
     public ResponseEntity<ApiResponse<CustomerResponseDTO>> getCustomer(
             @RequestParam @NotBlank(message = "Name cannot be empty") String name
