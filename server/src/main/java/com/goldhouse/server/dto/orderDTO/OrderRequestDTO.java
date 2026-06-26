@@ -37,7 +37,6 @@ public class OrderRequestDTO {
     @NotNull(message = "Order date is required")
     private LocalDate orderDate;
 
-    @FutureOrPresent(message = "Order time cannot be in the past")
     @NotNull(message = "Order time is required")
     private LocalTime orderTime;
 
