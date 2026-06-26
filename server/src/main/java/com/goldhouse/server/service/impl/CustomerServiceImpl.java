@@ -7,6 +7,7 @@ import com.goldhouse.server.mapper.CustomerMapper;
 import com.goldhouse.server.model.Customer;
 import com.goldhouse.server.repository.CustomerRepository;
 import com.goldhouse.server.service.CustomerService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -62,4 +63,12 @@ public class CustomerServiceImpl implements CustomerService {
         var customerList = repository.findAll();
         return customerMapper.toResponseDTOList(customerList);
     }
+
+    @Override
+    public List<CustomerResponseDTO> searchCustomers(String query, Pageable pageable) {
+        var customerList = repository.searchCustomers(query,pageable);
+        return customerMapper.toResponseDTOList(customerList);
+    }
+
+
 }
