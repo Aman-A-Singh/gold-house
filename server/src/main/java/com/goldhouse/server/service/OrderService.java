@@ -16,6 +16,14 @@ public interface OrderService {
 
     Page<OrderResponseDTO> getAllOrders(Pageable pageable);
 
+    Page<OrderResponseDTO> getFilteredOrders(Pageable pageable,
+                                             String customerName,
+                                             Long customerPhoneNumber,
+                                             String orderId,
+                                             OrderStatus status,
+                                             String sortBy,
+                                             String sortDir);
+
     void removeOrder(String orderId);
 
     List<OrderResponseDTO> getOrdersByCustomerIdAndStatus(long customer_id, OrderStatus status);

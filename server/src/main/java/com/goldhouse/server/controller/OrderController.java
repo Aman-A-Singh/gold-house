@@ -48,6 +48,22 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.successPaging(orderPage));
     }
 
+    @GetMapping("/filteredOrder")
+    public ResponseEntity<ApiResponse<ApiResponse.PagedResponse<OrderResponseDTO>>> getFilteredOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int size,
+            @RequestParam(required = false) String customerName,
+            @RequestParam(required = false) @Positive(message = "Phone number must be positive") Long customerPhoneNumber,
+            @RequestParam(required = false) String orderId,
+            @RequestParam(required = false) OrderStatus status,
+            @RequestParam(defaultValue = "orderDate") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OrderResponseDTO> orderPage = orderService.getFilteredOrders(pageable, customerName, customerPhoneNumber, orderId, status,sortBy,sortDir);
+        return ResponseEntity.ok(ApiResponse.successPaging(orderPage));
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> getOrders(
             @RequestParam(required = false) String customerName,
@@ -104,13 +120,13 @@ public class OrderController {
     @GetMapping("/today")
     public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> getTodayOrders() {
         List<OrderResponseDTO> orderList = orderService.getOrdersByOrderDate(LocalDate.now());
-        return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
+        return ResponseEntity.ok(ApiResponse.successWithCount(orderList, orderList.size()));
     }
 
     @GetMapping("/today/pending")
     public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> getTodayPendingOrders() {
         List<OrderResponseDTO> orderList = orderService.getTodaysPendingOrder(LocalDate.now());
-        return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
+        return ResponseEntity.ok(ApiResponse.successWithCount(orderList, orderList.size()));
     }
 
     private List<OrderResponseDTO> fetchOrders(Long customerId, OrderStatus status) {
@@ -134,7 +150,7 @@ public class OrderController {
             @RequestParam @NotNull(message = "To date is required") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
     ) {
         List<OrderResponseDTO> orderList = orderService.ordersDeliveredBetweenDate(fromDate, toDate);
-        return ResponseEntity.ok(ApiResponse.successWithCount(orderList,orderList.size()));
+        return ResponseEntity.ok(ApiResponse.successWithCount(orderList, orderList.size()));
     }
 
     @GetMapping("/home")
