@@ -4,6 +4,7 @@ import com.goldhouse.server.model.Order;
 import com.goldhouse.server.model.OrderStatus;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -11,7 +12,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, String> {
+public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecificationExecutor<Order> {
     List<Order> getOrdersByCustomerIdAndOrderStatus(long customer_id, OrderStatus status);
     List<Order> getOrderByOrderStatus(OrderStatus status);
     List<Order> getOrderByCustomerId(long customer_id);

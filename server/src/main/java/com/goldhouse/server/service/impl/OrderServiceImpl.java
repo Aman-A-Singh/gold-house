@@ -15,9 +15,13 @@ import com.goldhouse.server.model.User;
 import com.goldhouse.server.repository.CustomerRepository;
 import com.goldhouse.server.repository.OrderRepository;
 import com.goldhouse.server.repository.UserRepository;
+import com.goldhouse.server.repository.specification.OrderSpecifications;
 import com.goldhouse.server.service.OrderService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -32,7 +36,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final CustomerMapper customerMapper;
 
-    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository, OrderMapper orderMapper, UserRepository userRepository, CustomerMapper customerMapper) {
+    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository,
+            OrderMapper orderMapper, UserRepository userRepository, CustomerMapper customerMapper) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.userRepository = userRepository;
@@ -45,7 +50,8 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = null;
         if (orderRequestDTO.getCustomer().getId() != null) {
             customer = customerRepository.findById(orderRequestDTO.getCustomer().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + orderRequestDTO.getCustomer().getId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Customer not found with ID: " + orderRequestDTO.getCustomer().getId()));
         } else {
             Customer customerEntity = customerMapper.toEntity(orderRequestDTO.getCustomer());
             customer = customerRepository.save(customerEntity);
@@ -59,6 +65,27 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<OrderResponseDTO> getAllOrders(Pageable pageable) {
         Page<Order> orderPage = orderRepository.findAll(pageable);
+        return orderPage.map(orderMapper::toResponseDTO);
+    }
+
+    @Override
+    public Page<OrderResponseDTO> getFilteredOrders(
+            Pageable pageable,
+            String customerName,
+            Long customerPhoneNumber,
+            String orderId,
+            OrderStatus status,
+            String sortBy,
+            String sortDir) {
+        // Define sorting direction safely
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageableWithSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        // Combine all dynamic specifications
+        Specification<Order> spec = OrderSpecifications.filterOrders(orderId, customerName, customerPhoneNumber,
+                status);
+        Page<Order> orderPage = orderRepository.findAll(spec, pageableWithSort);
         return orderPage.map(orderMapper::toResponseDTO);
     }
 
@@ -79,7 +106,6 @@ public class OrderServiceImpl implements OrderService {
         return orderList.stream().map(orderMapper::toResponseDTO).toList();
     }
 
-
     @Override
     public List<OrderResponseDTO> getOrdersByOrderDate(LocalDate date) {
         return orderRepository.getOrdersByOrderDate(date).stream().map(orderMapper::toResponseDTO).toList();
@@ -96,7 +122,6 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
         return orderMapper.toResponseDTO(order);
     }
-
 
     @Override
     public long getTotalOrdersCount() {
@@ -122,8 +147,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDTO updateOrderDetails(OrderRequestDTO orderRequestDto) {
         Order order = orderRepository.getOrderByOrderDateAndOrderTime(
                 orderRequestDto.getOrderDate(),
-                orderRequestDto.getOrderTime()
-        );
+                orderRequestDto.getOrderTime());
 
         if (order == null) {
             throw new ResourceNotFoundException("Order not found for the given date and time");
@@ -140,13 +164,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponseDTO> getTodaysPendingOrder(LocalDate today) {
-        return orderRepository.getOrdersByOrderStatusAndOrderDate(OrderStatus.PENDING, today).stream().map(orderMapper::toResponseDTO).toList();
+        return orderRepository.getOrdersByOrderStatusAndOrderDate(OrderStatus.PENDING, today).stream()
+                .map(orderMapper::toResponseDTO).toList();
     }
 
 
     @Override
     public List<OrderResponseDTO> ordersDeliveredBetweenDate(LocalDate fromDate, LocalDate toDate) {
-        return orderRepository.getOrdersByDeliverDateBetween(fromDate, toDate).stream().map(orderMapper::toResponseDTO).toList();
+        return orderRepository.getOrdersByDeliverDateBetween(fromDate, toDate).stream().map(orderMapper::toResponseDTO)
+                .toList();
     }
 
     @Override
@@ -170,7 +196,7 @@ public class OrderServiceImpl implements OrderService {
         long totalOrders = orderRepository.count();
         long pendingOrders = orderRepository.countByOrderStatus(OrderStatus.PENDING);
         long deliveredOrders = orderRepository.countByOrderStatus(OrderStatus.DELIVERED);
-        long canceledOrders = orderRepository.countByOrderStatus(OrderStatus.CANCELED);
+        long canceledOrders = orderRepository.countByOrderStatus(OrderStatus.CANCELLED);
 
         List<Order> orders = orderRepository.findAll();
         List<OrderResponseDTO> recentOrders = orders.stream().map(orderMapper::toResponseDTO).toList();

@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum OrderStatus {
     PENDING(1),
     DELIVERED(2),
-    CANCELED(3);
+    CANCELLED(3);
     private final int value;
 
 
