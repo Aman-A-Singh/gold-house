@@ -8,12 +8,13 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderSpecifications {
 
-    public static Specification<Order> filterOrders(String orderId, String customerName, Long phoneNumber, OrderStatus orderStatus) {
+    public static Specification<Order> filterOrders(String orderId, String customerName, Long phoneNumber, OrderStatus orderStatus, LocalDate orderDate) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -27,6 +28,9 @@ public class OrderSpecifications {
                 predicates.add(criteriaBuilder.equal(root.get("orderStatus"), orderStatus));
             }
 
+            if(orderDate != null){
+                predicates.add(criteriaBuilder.equal(root.get("orderDate"), orderDate));
+            }
             // Join with Customer for customer filters
             if (StringUtils.hasText(customerName) || phoneNumber != null) {
                 Join<Order, Customer> customerJoin = root.join("customer");
