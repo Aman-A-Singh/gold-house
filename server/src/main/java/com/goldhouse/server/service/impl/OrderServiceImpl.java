@@ -1,6 +1,6 @@
 package com.goldhouse.server.service.impl;
 
-import com.goldhouse.server.dto.homeDTO.HomeMetrics;
+import com.goldhouse.server.dto.dashboardDTO.DashboardMetrics;
 import com.goldhouse.server.dto.homeDTO.HomeResponseDTO;
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
@@ -84,7 +84,7 @@ public class OrderServiceImpl implements OrderService {
         Pageable pageableWithSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         // Combine all dynamic specifications
         Specification<Order> spec = OrderSpecifications.filterOrders(orderId, customerName, customerPhoneNumber,
-                status);
+                status,null);
         Page<Order> orderPage = orderRepository.findAll(spec, pageableWithSort);
         return orderPage.map(orderMapper::toResponseDTO);
     }
@@ -210,7 +210,7 @@ public class OrderServiceImpl implements OrderService {
                 .lastName(user.getLastName())
                 .build();
 
-        HomeMetrics metrics = HomeMetrics.builder()
+        DashboardMetrics metrics = DashboardMetrics.builder()
                 .totalOrders(totalOrders)
                 .pendingOrders(pendingOrders)
                 .deliveredOrders(deliveredOrders)

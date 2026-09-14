@@ -2,9 +2,10 @@ package com.goldhouse.server.repository;
 
 import com.goldhouse.server.model.Order;
 import com.goldhouse.server.model.OrderStatus;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -31,4 +32,7 @@ public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecif
     List<Order> getOrdersByOrderStatusAndOrderDate(OrderStatus status, LocalDate date);
 
     Order getOrderByOrderDateAndOrderTime(LocalDate date, LocalTime time);
+
+    @Query("SELECT o FROM Order o WHERE o.orderStatus = com.goldhouse.server.model.OrderStatus.PENDING OR o.orderDate = :today ORDER BY o.orderDate DESC, o.orderTime DESC")
+    List<Order> findPendingAndTodayOrders(@Param("today") LocalDate today);
 }
