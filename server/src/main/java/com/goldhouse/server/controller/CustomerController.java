@@ -1,11 +1,13 @@
 package com.goldhouse.server.controller;
 
 import com.goldhouse.server.api.ApiResponse;
+import com.goldhouse.server.dto.customerDTO.CustomerOrderSummaryDTO;
 import com.goldhouse.server.dto.customerDTO.CustomerRequestDTO;
 import com.goldhouse.server.dto.customerDTO.CustomerResponseDTO;
 import com.goldhouse.server.service.CustomerService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -46,10 +48,15 @@ public class CustomerController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CustomerResponseDTO>>> getAllCustomers() {
-        List<CustomerResponseDTO> customers = customerService.getAllCustomers();
+    public ResponseEntity<ApiResponse<ApiResponse.PagedResponse<CustomerOrderSummaryDTO>>> getAllCustomers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int size,
+            @RequestParam(required = false) String query
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CustomerOrderSummaryDTO> customers = customerService.getAllCustomers(pageable,query);
         return ResponseEntity.ok(
-                ApiResponse.successWithCount(customers,"Customers found",customers.size())
+                ApiResponse.successPaging(customers)
         );
     }
 

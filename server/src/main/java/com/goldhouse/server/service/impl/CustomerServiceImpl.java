@@ -1,5 +1,6 @@
 package com.goldhouse.server.service.impl;
 
+import com.goldhouse.server.dto.customerDTO.CustomerOrderSummaryDTO;
 import com.goldhouse.server.dto.customerDTO.CustomerRequestDTO;
 import com.goldhouse.server.dto.customerDTO.CustomerResponseDTO;
 import com.goldhouse.server.exception.customException.ResourceNotFoundException;
@@ -7,10 +8,10 @@ import com.goldhouse.server.mapper.CustomerMapper;
 import com.goldhouse.server.model.Customer;
 import com.goldhouse.server.repository.CustomerRepository;
 import com.goldhouse.server.service.CustomerService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -59,9 +60,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerResponseDTO> getAllCustomers() {
-        var customerList = repository.findAll();
-        return customerMapper.toResponseDTOList(customerList);
+    public Page<CustomerOrderSummaryDTO> getAllCustomers(Pageable pageable, String query) {
+        return repository.findAllCustomerSummaries(pageable,query);
     }
 
     @Override
