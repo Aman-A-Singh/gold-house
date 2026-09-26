@@ -3,6 +3,7 @@ package com.goldhouse.server.service;
 import com.goldhouse.server.dto.homeDTO.HomeResponseDTO;
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
+import com.goldhouse.server.dto.orderDTO.OrderUpdateRequestDTO;
 import com.goldhouse.server.model.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,8 @@ public interface OrderService {
     long getOrdersCountByCustomerIdAndStatus(long customerId, OrderStatus status);
 
     OrderResponseDTO updateOrderDetails(OrderRequestDTO orderRequestDto);
+
+    OrderResponseDTO updateOrderDetails(String id, OrderUpdateRequestDTO orderUpdateRequestDTO);
 
     List<OrderResponseDTO> getTodaysPendingOrder(LocalDate today);
 

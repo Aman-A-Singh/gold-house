@@ -4,6 +4,7 @@ import com.goldhouse.server.dto.dashboardDTO.DashboardMetrics;
 import com.goldhouse.server.dto.homeDTO.HomeResponseDTO;
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
+import com.goldhouse.server.dto.orderDTO.OrderUpdateRequestDTO;
 import com.goldhouse.server.dto.user.UserDTO;
 import com.goldhouse.server.exception.customException.ResourceNotFoundException;
 import com.goldhouse.server.mapper.CustomerMapper;
@@ -17,6 +18,7 @@ import com.goldhouse.server.repository.OrderRepository;
 import com.goldhouse.server.repository.UserRepository;
 import com.goldhouse.server.repository.specification.OrderSpecifications;
 import com.goldhouse.server.service.OrderService;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponseDTO addOrder(OrderRequestDTO orderRequestDTO) {
-        Customer customer = null;
+        Customer customer;
         if (orderRequestDTO.getCustomer().getId() != null) {
             customer = customerRepository.findById(orderRequestDTO.getCustomer().getId())
                     .orElseThrow(() -> new ResourceNotFoundException(
@@ -161,6 +163,25 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(orderRequestDto.getOrderStatus());
         return orderMapper.toResponseDTO(orderRepository.save(order));
     }
+
+    @Override
+    @Transactional
+    public OrderResponseDTO updateOrderDetails(String id, OrderUpdateRequestDTO orderUpdateRequestDTO) {
+        Customer customer = null;
+        if (orderUpdateRequestDTO.getCustomer().getId() != null) {
+            customer = customerRepository.findById(orderUpdateRequestDTO.getCustomer().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Customer not found with ID: " + orderUpdateRequestDTO.getCustomer().getId()));
+        } else {
+            Customer customerEntity = customerMapper.toEntity(orderUpdateRequestDTO.getCustomer());
+            customer = customerRepository.save(customerEntity);
+        }
+        Order order = orderMapper.toEntity(orderUpdateRequestDTO, customer);
+        order.setId(id);
+        Order savedOrder = orderRepository.save(order);
+        return orderMapper.toResponseDTO(savedOrder);
+    }
+
 
     @Override
     public List<OrderResponseDTO> getTodaysPendingOrder(LocalDate today) {

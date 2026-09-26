@@ -4,6 +4,7 @@ import com.goldhouse.server.api.ApiResponse;
 import com.goldhouse.server.dto.homeDTO.HomeResponseDTO;
 import com.goldhouse.server.dto.orderDTO.OrderRequestDTO;
 import com.goldhouse.server.dto.orderDTO.OrderResponseDTO;
+import com.goldhouse.server.dto.orderDTO.OrderUpdateRequestDTO;
 import com.goldhouse.server.model.OrderStatus;
 import com.goldhouse.server.service.OrderService;
 import jakarta.validation.Valid;
@@ -142,6 +143,13 @@ public class OrderController {
     @PutMapping("/deliver")
     public ResponseEntity<ApiResponse<OrderResponseDTO>> updateOrderDetails(@Valid @RequestBody OrderRequestDTO dto) {
         return ResponseEntity.ok(ApiResponse.success(orderService.updateOrderDetails(dto)));
+    }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<ApiResponse<OrderResponseDTO>> updateOrderDetails(
+            @PathVariable @NotBlank(message = "Order ID cannot be empty") String id,
+            @Valid @RequestBody OrderUpdateRequestDTO dto) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.updateOrderDetails(id,dto)));
     }
 
     @GetMapping("/delivered/range")
