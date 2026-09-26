@@ -8,11 +8,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = DeliveryDateValidator.class)
-@Target({ElementType.TYPE})
+@Constraint(validatedBy = GenericDateRangeValidator.class)
+@Target({ElementType.TYPE}) // Class-level validation
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidDeliveryDate {
-    String message() default "Delivery date must be after or equal to the order date";
+public @interface ValidDateRange {
+
+    String message() default "End date must be after or equal to start date";
+
+    String startDateField();
+
+    String endDateField();
 
     Class<?>[] groups() default {};
 

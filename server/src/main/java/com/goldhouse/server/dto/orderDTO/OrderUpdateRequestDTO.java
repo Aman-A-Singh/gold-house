@@ -3,7 +3,6 @@ package com.goldhouse.server.dto.orderDTO;
 import com.goldhouse.server.annotation.deliveryDateValidator.ValidDateRange;
 import com.goldhouse.server.dto.customerDTO.CustomerRequestDTO;
 import com.goldhouse.server.model.OrderStatus;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -12,15 +11,13 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-
 @Data
 @ValidDateRange(
         startDateField = "orderDate",
         endDateField = "deliverDate",
         message = "Delivery date must be after or equal to the order date"
 )
-public class OrderRequestDTO {
-
+public class OrderUpdateRequestDTO {
     @NotNull(message = "Customer is required")
     private CustomerRequestDTO customer;
 
@@ -37,14 +34,12 @@ public class OrderRequestDTO {
     @Min(value = 1, message = "Stamp number must be at least 1")
     private int stampNo;
 
-    @FutureOrPresent(message = "Order date cannot be in the past")
     @NotNull(message = "Order date is required")
     private LocalDate orderDate;
 
     @NotNull(message = "Order time is required")
     private LocalTime orderTime;
 
-    @FutureOrPresent(message = "Delivery date cannot be in the past")
     private LocalDate deliverDate;
 
     private LocalTime deliverTime;
